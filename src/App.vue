@@ -1,19 +1,25 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from '@/components/HelloWorld.vue'
+import Login from '@/components/Login.vue'
+
+import { ref, onMounted } from 'vue'
+
 </script>
 
 <template>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+    <img alt="Vue logo" class="logo" src="@/assets/EasyLibLogo.jpg" width="100" />
 
     <div class="wrapper">
-      <HelloWorld msg="You did it!" />
 
       <nav>
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+        <RouterLink to="/books">Books</RouterLink>
+        <RouterLink to="/booklendings">Booklendings</RouterLink>
       </nav>
+      
+      <Login />
     </div>
   </header>
 

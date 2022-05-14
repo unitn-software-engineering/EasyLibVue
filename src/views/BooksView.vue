@@ -1,15 +1,12 @@
+<script setup>
+import BooksTable from '@/components/BooksTable.vue'
+</script>
+
 <template>
-  <div class="books">
-    <h1>Books:</h1>
+  <div>
+    <BooksTable />
   </div>
 </template>
 
 <style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
-}
 </style>
