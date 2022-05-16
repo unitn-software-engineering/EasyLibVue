@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue'
 import { loggedUser } from '../states/loggedUser.js'
 import { books, fetchBooks, createBook, deleteBook } from '../states/books.js'
 
-const HOST = `http://localhost:8080`
+const HOST = import.meta.env.VITE_API_HOST || `http://localhost:8080`
 const API_URL = HOST+`/api/v1`
 const BOOKS_URL = API_URL+'/books'
 const LENDINGS_URL = API_URL+'/booklendings'

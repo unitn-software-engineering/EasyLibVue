@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { loggedUser, setLoggedUser, clearLoggedUser } from '../states/loggedUser.js'
 
-const HOST = `http://localhost:8080`
+const HOST = import.meta.env.VITE_API_HOST || `http://localhost:8080`
 const API_URL = HOST+`/api/v1`
 
 const email = ref('mario.rossi@unitn.com')
