@@ -2,30 +2,11 @@
     import { ref, onMounted } from 'vue'
     import { loggedUser, setLoggedUser, clearLoggedUser } from '../states/loggedUser.js'
 
-    const HOST = import.meta.env.VITE_API_HOST || `http://localhost:8080`
-    const API_URL = HOST+`/api/v1`
+    const VITE_API_HOST = import.meta.env.VITE_API_HOST || `http://localhost:8080`
+    const API_URL = VITE_API_HOST+`/api/v1`
 
-    const YOUR_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const YOUR_REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+    const VITE_GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-    // Parse query string to see if page request is coming from OAuth 2.0 server.
-    var fragmentString = location.hash.substring(1);
-    var params = {};
-    var regex = /([^&=]+)=([^&]*)/g, m;
-    while (m = regex.exec(fragmentString)) {
-        params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
-    }
-    if (Object.keys(params).length > 0 && params['state']) {
-        if (params['state'] == localStorage.getItem('state')) {
-
-            localStorage.setItem('oauth2-test-params', JSON.stringify(params) );
-
-            myLogin( params.access_token );
-        
-        } else {
-            console.log('State mismatch. Possible CSRF attack');
-        }
-    }
 
     function myLogin( googleToken ) {
         fetch(API_URL+'/authentications', {
@@ -47,91 +28,47 @@
 
     };
 
-    // Function to generate a random state value
-    function generateCryptoRandomState() {
-        const randomValues = new Uint32Array(2);
-        window.crypto.getRandomValues(randomValues);
-
-        // Encode as UTF-8
-        const utf8Encoder = new TextEncoder();
-        const utf8Array = utf8Encoder.encode(
-        String.fromCharCode.apply(null, randomValues)
-        );
-
-        // Base64 encode the UTF-8 data
-        return btoa(String.fromCharCode.apply(null, utf8Array))
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
-    }
-
-    // If there's an access token, try an API request.
-    // Otherwise, start OAuth 2.0 flow.
-    function trySampleRequest() {
-        var params = JSON.parse(localStorage.getItem('oauth2-test-params'));
-        if (params && params['access_token']) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET',
-            'https://www.googleapis.com/drive/v3/about?fields=user&' +
-            'access_token=' + params['access_token']);
-        xhr.onreadystatechange = function (e) {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-            console.log(xhr.response);
-            } else if (xhr.readyState === 4 && xhr.status === 401) {
-            // Token invalid, so prompt for user permission.
-            oauth2SignIn();
-            }
-        };
-        xhr.send(null);
-        } else {
-        oauth2SignIn();
-        }
-    }
+    const googleLoginBtn = ref(null);
 
     onMounted( () => {
+
+        // https://developers.google.com/identity/gsi/web/reference/js-reference?hl=it
+        
+        let google_gsi_client = document.createElement('script');
+        google_gsi_client.setAttribute('src', 'https://accounts.google.com/gsi/client');
+        document.head.appendChild(google_gsi_client);
+        
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: VITE_GOOGLE_CLIENT_ID,
+                callback: handleCredentialResponse,
+                // login_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI,
+            });
+            google.accounts.id.renderButton(
+                googleLoginBtn.value, {
+                    text: 'signin_with', // or 'signup_with' | 'continue_with' | 'signin'
+                    size: 'large', // or 'small' | 'medium'
+                    width: '366', // max width 400
+                    theme: 'outline', // or 'filled_black' |  'filled_blue'
+                    logo_alignment: 'left' // or 'center'
+                }
+            );
+            google.accounts.id.prompt(); // also display the One Tap dialog
+        };
+
     });
-
-    /*
-    * Create form to request access token from Google's OAuth 2.0 server.
-    */
-    function oauth2SignIn() {
-
-        // create random state value and store in local storage
-        var state = generateCryptoRandomState();
-        localStorage.setItem('state', state);
-
-        // Google's OAuth 2.0 endpoint for requesting an access token
-        var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
-
-        // Create element to open OAuth 2.0 endpoint in new window.
-        var form = document.createElement('form');
-        form.setAttribute('method', 'GET'); // Send as a GET request.
-        form.setAttribute('action', oauth2Endpoint);
-
-        // Parameters to pass to OAuth 2.0 endpoint.
-        var params = {'client_id': YOUR_CLIENT_ID,
-                    'redirect_uri': YOUR_REDIRECT_URI,
-                    'scope': 'https://www.googleapis.com/auth/userinfo.email',
-                    'state': state,
-                    'include_granted_scopes': 'true',
-                    'response_type': 'token'};
-
-        // Add form parameters as hidden input values.
-        for (var p in params) {
-            var input = document.createElement('input');
-            input.setAttribute('type', 'hidden');
-            input.setAttribute('name', p);
-            input.setAttribute('value', params[p]);
-            form.appendChild(input);
+    
+    function handleCredentialResponse( response ) {
+        console.log(response);
+        if (response.credential) {
+            myLogin( response.credential );
         }
-
-        // Add form to page and submit it to open the OAuth 2.0 endpoint.
-        document.body.appendChild(form);
-        form.submit();
-    };
+    }
 
 </script>
 
 <template>
-    <button @click="oauth2SignIn();">oauth2SignIn</button>
+
+    <div ref="googleLoginBtn"></div>
+
 </template>
