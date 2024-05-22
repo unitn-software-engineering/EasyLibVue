@@ -2,6 +2,7 @@
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from '@/components/HelloWorld.vue'
 import Login from '@/components/Login.vue'
+import LoginGoogle from '@/components/LoginGoogle.vue'
 
 import { ref, onMounted } from 'vue'
 
@@ -19,7 +20,8 @@ import { ref, onMounted } from 'vue'
         <RouterLink to="/booklendings">Booklendings</RouterLink>
       </nav>
       
-      <Login />
+      <Login /> <LoginGoogle />
+
     </div>
   </header>
 
