@@ -6,7 +6,7 @@
 set -e
 
 # build
-npm run build
+npm run build.production
 
 # navigate into the build output directory
 cd dist

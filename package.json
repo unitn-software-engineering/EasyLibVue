@@ -4,7 +4,8 @@
   "scripts": {
     "postinstall": "npm run build",
     "dev": "vite",
-    "build": "dotenvx run --env-file=.env.production -- vite build",
+    "build": "vite build",
+    "build.production": "dotenvx run --env-file=.env.production -- vite build",
     "preview": "vite preview --port 5050"
   },
   "dependencies": {
