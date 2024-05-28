@@ -6,7 +6,7 @@
 set -e
 
 # build
-npm run build.production
+npm run build.githubpages
 
 # navigate into the build output directory
 cd dist
